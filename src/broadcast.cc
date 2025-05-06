@@ -29,6 +29,6 @@ int main(int argc, char* argv[]) {
         packet p{};
         connection.send(asio::buffer(std::bit_cast<packet_buf>(p)));
         //using namespace std::chrono_literals;
-        //std::this_thread::sleep_for(1s);
+        //std::this_thread::sleep_for(100ms);
     }
 }
