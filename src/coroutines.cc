@@ -31,7 +31,10 @@ asio::awaitable<void> receive_packets(std::string id, udp::socket socket) {
     auto io_context = co_await asio::this_coro::executor;
     while (true) {
         packet_buf buffer{};
-        std::size_t n = co_await socket.async_receive(asio::buffer(buffer), asio::use_awaitable);
+        auto [e1, n] = co_await socket.async_receive(asio::buffer(buffer), use_nothrow_awaitable);
+        if (e1) {
+            break;
+        }
         std::cout << "received packet on coroutine " << id << std::endl;
         packet_queue.emplace(std::move(buffer));
         std::cout << packet_queue.size() << " packets in queue" << std::endl;
@@ -41,17 +44,13 @@ asio::awaitable<void> receive_packets(std::string id, udp::socket socket) {
 
 int main(int argc, char *argv[]) {
     unsigned num_cores = std::thread::hardware_concurrency();
-    try {
-        asio::io_context io_context(num_cores);
+    asio::io_context io_context(num_cores);
 
-        asio::signal_set signals(io_context, SIGINT, SIGTERM);
-        signals.async_wait([&](auto, auto) { io_context.stop(); });
-        asio::co_spawn(io_context, receive_packets("a", setup_socket(io_context, false, "0.0.0.0", "62040")), asio::detached);
-        asio::co_spawn(io_context, receive_packets("b", setup_socket(io_context, false, "0.0.0.0", "62041")), asio::detached);
+    asio::signal_set signals(io_context, SIGINT, SIGTERM);
+    signals.async_wait([&](auto, auto) { io_context.stop(); });
+    asio::co_spawn(io_context, receive_packets("a", setup_socket(io_context, false, "0.0.0.0", "62040")), asio::detached);
+    asio::co_spawn(io_context, receive_packets("b", setup_socket(io_context, false, "0.0.0.0", "62041")), asio::detached);
 
-        io_context.run();
-    } catch (std::exception &e) {
-        std::cerr << "exception in main: " << e.what() << std::endl;
-    }
+    io_context.run();
     return 0;
 }

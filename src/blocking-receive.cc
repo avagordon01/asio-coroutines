@@ -22,16 +22,12 @@ int main(int argc, char* argv[]) {
     }
     std::string address = argv[1];
     std::string port = argv[2];
-    try {
-        asio::io_context io_context;
+    asio::io_context io_context;
 
-        udp::socket connection = setup_socket(io_context, false, address, port);
-        while (true) {
-            packet_buf data;
-            std::size_t n = connection.receive(asio::buffer(data));
-            std::cout << "received packet" << std::endl;
-        }
-    } catch (std::exception& e) {
-        std::cout << "exception: " << e.what() << std::endl;
+    udp::socket connection = setup_socket(io_context, false, address, port);
+    while (true) {
+        packet_buf data;
+        std::size_t n = connection.receive(asio::buffer(data));
+        std::cout << "received packet" << std::endl;
     }
 }

@@ -18,3 +18,5 @@ asio::ip::udp::socket setup_socket(asio::io_context& io_context, bool send, std:
     socket.set_option(asio::socket_base::broadcast{true});
     return socket;
 }
+
+constexpr auto use_nothrow_awaitable = asio::as_tuple(asio::use_awaitable);
