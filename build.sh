@@ -2,9 +2,13 @@
 
 set -euxo pipefail
 
-export CC=clang
 export CXX=clang++
 
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-cmake --install build --prefix packaged
+cmake -G "Ninja Multi-Config" -B build
+
+config=Debug
+#config=TSan
+#config=Release
+cmake --build build --config ${config}
+ctest --test-dir build --build-config ${config}
+cmake --install build --config ${config} --prefix install

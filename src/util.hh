@@ -1,6 +1,8 @@
 #pragma once
 
-#include <asio.hpp>
+#include <boost/asio.hpp>
+
+namespace asio = boost::asio;
 
 asio::ip::udp::socket setup_socket(asio::io_context& io_context, bool send, std::string ip, std::string port) {
     using asio::ip::udp;
